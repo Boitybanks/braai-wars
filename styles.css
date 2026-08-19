@@ -408,6 +408,46 @@ body {
   background: var(--color-surface-light);
 }
 
+/* --- Temptation Actions (selfish options marked with devil emoji) --- */
+.btn-action.temptation {
+  border-color: rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.btn-action.temptation:hover,
+.btn-action.temptation:focus-visible {
+  border-color: rgba(168, 85, 247, 0.6);
+  background: rgba(168, 85, 247, 0.15);
+}
+
+.temptation-badge {
+  font-size: 1rem;
+}
+
+/* --- Temptation Note on Judgement Screen --- */
+.temptation-note {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.temptation-note.positive {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: var(--color-success);
+}
+
+.temptation-note small {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
 /* ======================== CONSEQUENCE PANEL ======================== */
 /* Shown after the player picks an action. Timer is paused.
    Displays result text + individual meter change breakdown. */

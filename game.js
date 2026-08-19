@@ -46,7 +46,16 @@ const state = {
   // These accumulate across all crisis decisions for final judgement.
   totalLeadership: 0,   // sum of leadershipImpact values from chosen actions
   totalUbuntu: 0,       // sum of ubuntuImpact values from chosen actions
-  decisionsCount: 0     // how many crisis decisions were made
+  decisionsCount: 0,    // how many crisis decisions were made
+
+  // ── TEMPTATION TRACKER ──
+  // Selfish temptations give short-term boosts but hurt Ubuntu.
+  // selfishCount: total temptation actions taken
+  // selfishStreak: consecutive temptation picks (streak amplifies penalty)
+  // maxStreak: longest consecutive streak achieved
+  selfishCount: 0,
+  selfishStreak: 0,
+  maxSelfishStreak: 0
 };
 
 // ─── CHARACTER DATA ───────────────────────────────────────────
@@ -608,6 +617,131 @@ const CRISIS_CARDS = [
         tags: ['inclusive', 'cooperative']
       }
     ]
+  },
+  // ─── TEMPTATION CARDS ───────────────────────────────────────────
+  // These crises present a particularly juicy selfish option that gives
+  // a big short-term boost to vibe or food, but damages other meters
+  // and tanks your Ubuntu score. The temptation is marked explicitly
+  // with isTemptation: true so the game can track selfish choices.
+  {
+    title: '🍖 The premium fillet steak is done — but there\'s only enough for you!',
+    actions: [
+      {
+        label: 'Eat it yourself before anyone notices',
+        result: 'Heavenly. But Gogo saw you and she\'s telling everyone.',
+        effects: [{ meter: 'food', delta: +20 }, { meter: 'vibe', delta: -15 }, { meter: 'neighbourPatience', delta: -10 }],
+        leadershipImpact: -2,
+        ubuntuImpact: -2,
+        tags: ['selfish'],
+        isTemptation: true
+      },
+      {
+        label: 'Slice it up and share with the whole crew',
+        result: 'Tiny pieces but massive respect. Ubuntu energy.',
+        effects: [{ meter: 'food', delta: +5 }, { meter: 'vibe', delta: +15 }],
+        leadershipImpact: 2,
+        ubuntuImpact: 2,
+        tags: ['inclusive', 'cooperative', 'fair']
+      },
+      {
+        label: 'Give it to the guest of honour',
+        result: 'Classy move. Everyone raises their glass to you.',
+        effects: [{ meter: 'vibe', delta: +10 }, { meter: 'neighbourPatience', delta: +5 }],
+        leadershipImpact: 2,
+        ubuntuImpact: 2,
+        tags: ['fair', 'inclusive']
+      }
+    ]
+  },
+  {
+    title: '💰 A guest left their wallet on the table with R200 sticking out!',
+    actions: [
+      {
+        label: 'Pocket R100 for "braai expenses"',
+        result: 'Extra budget! But your conscience is heavy... and someone noticed.',
+        effects: [{ meter: 'food', delta: +15 }, { meter: 'vibe', delta: -10 }, { meter: 'neighbourPatience', delta: -15 }],
+        leadershipImpact: -2,
+        ubuntuImpact: -2,
+        tags: ['selfish'],
+        isTemptation: true
+      },
+      {
+        label: 'Return it immediately and announce it loudly',
+        result: 'Hero moment! Trust levels through the roof.',
+        effects: [{ meter: 'vibe', delta: +15 }, { meter: 'neighbourPatience', delta: +10 }],
+        leadershipImpact: 2,
+        ubuntuImpact: 2,
+        tags: ['fair', 'cooperative']
+      },
+      {
+        label: 'Quietly put it in their bag without saying anything',
+        result: 'Humble and honest. The ancestors are pleased.',
+        effects: [{ meter: 'vibe', delta: +5 }],
+        leadershipImpact: 1,
+        ubuntuImpact: 2,
+        tags: ['fair', 'inclusive']
+      }
+    ]
+  },
+  {
+    title: '🎤 The DJ slot opened up — do you take the aux?',
+    actions: [
+      {
+        label: 'Hijack the speaker and play YOUR playlist for an hour',
+        result: 'Your taste is fire... but nobody else got a turn. Egos bruised.',
+        effects: [{ meter: 'vibe', delta: +20 }, { meter: 'neighbourPatience', delta: -10 }, { meter: 'electricity', delta: -10 }],
+        leadershipImpact: -1,
+        ubuntuImpact: -2,
+        tags: ['selfish'],
+        isTemptation: true
+      },
+      {
+        label: 'Create a shared queue and let everyone add songs',
+        result: 'Democracy in action! Some questionable choices but everyone\'s happy.',
+        effects: [{ meter: 'vibe', delta: +10 }, { meter: 'electricity', delta: -5 }],
+        leadershipImpact: 2,
+        ubuntuImpact: 2,
+        tags: ['inclusive', 'cooperative']
+      },
+      {
+        label: 'Let the kids pick first — they never get a turn',
+        result: 'Baby Shark plays 3 times. Worth it for the smiles.',
+        effects: [{ meter: 'vibe', delta: +5 }, { meter: 'neighbourPatience', delta: +5 }],
+        leadershipImpact: 1,
+        ubuntuImpact: 2,
+        tags: ['inclusive', 'fair']
+      }
+    ]
+  },
+  {
+    title: '🏆 You just won the braai-off bet — do you rub it in?',
+    actions: [
+      {
+        label: 'Do a victory lap and roast the losers publicly',
+        result: 'LEGENDARY flex! But three people are now plotting revenge.',
+        effects: [{ meter: 'vibe', delta: +15 }, { meter: 'neighbourPatience', delta: -20 }, { meter: 'fire', delta: -5 }],
+        leadershipImpact: -2,
+        ubuntuImpact: -2,
+        tags: ['selfish', 'reckless'],
+        isTemptation: true
+      },
+      {
+        label: 'Thank your crew and share the prize',
+        result: 'Grace in victory. People actually clap. Goosebumps.',
+        effects: [{ meter: 'vibe', delta: +10 }, { meter: 'neighbourPatience', delta: +10 }],
+        leadershipImpact: 2,
+        ubuntuImpact: 2,
+        tags: ['cooperative', 'inclusive', 'fair']
+      },
+      {
+        label: 'Offer a rematch to keep things fair',
+        result: 'Sportsmanship! The vibe is competitive but respectful.',
+        effects: [{ meter: 'vibe', delta: +5 }, { meter: 'neighbourPatience', delta: +5 }, { meter: 'fire', delta: +5 }],
+        leadershipImpact: 1,
+        ubuntuImpact: 1,
+        tags: ['fair']
+      }
+    ]
   }
 ];
 
@@ -743,6 +877,9 @@ function resetState() {
   state.totalLeadership = 0;
   state.totalUbuntu = 0;
   state.decisionsCount = 0;
+  state.selfishCount = 0;
+  state.selfishStreak = 0;
+  state.maxSelfishStreak = 0;
 
   // ── TIMER CLEANUP ──
   // Always clear before reassigning to prevent duplicate intervals.
@@ -890,11 +1027,18 @@ function showNextCard() {
     <div class="crisis-card">
       <p class="card-title">${card.title}</p>
       <div class="card-actions">
-        ${card.actions.map((action, i) => `
-          <button class="btn-action" data-action-index="${i}" aria-label="${action.label}">
-            ${action.label}
-          </button>
-        `).join('')}
+        ${card.actions.map((action, i) => {
+          // Mark temptation options with a devil emoji so players know
+          // the choice is selfish (but tempting!)
+          const isTemp = action.isTemptation === true ||
+            (action.tags.includes('selfish') && action.ubuntuImpact <= -2);
+          const tempLabel = isTemp ? '<span class="temptation-badge" aria-label="Temptation">😈</span> ' : '';
+          return `
+            <button class="btn-action${isTemp ? ' temptation' : ''}" data-action-index="${i}" aria-label="${action.label}">
+              ${tempLabel}${action.label}
+            </button>
+          `;
+        }).join('')}
       </div>
     </div>
   `;
@@ -909,6 +1053,11 @@ function showNextCard() {
 
 // ─── ACTION HANDLING ─────────────────────────────────────────
 function handleAction(action) {
+  // ── PHASE GUARD ──
+  // Only accept actions during the 'playing' phase. This prevents any
+  // stale event listener from firing during consequence or other phases.
+  if (state.phase !== 'playing') return;
+
   // ── DOUBLE-CLICK PREVENTION ──
   if (state.actionsLocked) return;
   state.actionsLocked = true;
@@ -928,6 +1077,23 @@ function handleAction(action) {
   state.totalLeadership += action.leadershipImpact;
   state.totalUbuntu += action.ubuntuImpact;
   state.decisionsCount++;
+
+  // ── TEMPTATION TRACKING ──
+  // An action is a "temptation" if explicitly marked OR if it's tagged
+  // selfish with strong negative ubuntu (the devil-on-your-shoulder options).
+  const isTemptation = action.isTemptation === true ||
+    (action.tags.includes('selfish') && action.ubuntuImpact <= -2);
+
+  if (isTemptation) {
+    state.selfishCount++;
+    state.selfishStreak++;
+    if (state.selfishStreak > state.maxSelfishStreak) {
+      state.maxSelfishStreak = state.selfishStreak;
+    }
+  } else {
+    // Streak resets when you pick a non-selfish action
+    state.selfishStreak = 0;
+  }
 
   // ── APPLY METER EFFECTS with clamping ──
   action.effects.forEach(effect => {
@@ -1000,10 +1166,14 @@ function showConsequence(action, deadMeterKey) {
   // Wire up the continue button
   if (deadMeterKey) {
     document.getElementById('btn-to-judgement').addEventListener('click', () => {
+      // Guard: only proceed if still in consequence phase (prevents double-click)
+      if (state.phase !== 'consequence') return;
       goToJudgement(false, deadMeterKey);
     });
   } else {
     document.getElementById('btn-next-crisis').addEventListener('click', () => {
+      // Guard: only proceed if still in consequence phase (prevents double-click)
+      if (state.phase !== 'consequence') return;
       showNextCard(); // this sets phase back to 'playing' and resumes timer
     });
   }
@@ -1022,8 +1192,12 @@ function goToJudgement(isWin, deadMeterKey) {
   const scores = calculateScores();
   state.score = scores.total;
 
-  // Persist best score to localStorage
-  saveBestScore(state.score);
+  // ── BEST SCORE RULE ──
+  // Only successful braais (wins) update the best score.
+  // A defeat does not count — you must survive the full 60 seconds.
+  if (isWin) {
+    saveBestScore(state.score);
+  }
 
   // Store win/loss info for the end screen
   state._isWin = isWin;
@@ -1056,15 +1230,24 @@ function calculateScores() {
     clampMeter(((state.totalLeadership - minLeadership) / leadershipRange) * 100)
   );
 
-  // Ubuntu: same normalisation as leadership
+  // Ubuntu: same normalisation as leadership, with TEMPTATION PENALTY.
+  // Each selfish action reduces the raw score by 5 points.
+  // A streak of 3+ consecutive selfish picks adds an extra -15 penalty
+  // (the crew loses faith in your leadership when you keep taking).
   const maxUbuntu = state.decisionsCount * 2;
   const minUbuntu = state.decisionsCount * -2;
   const ubuntuRange = maxUbuntu - minUbuntu || 1;
-  const ubuntu = Math.round(
+  let ubuntu = Math.round(
     clampMeter(((state.totalUbuntu - minUbuntu) / ubuntuRange) * 100)
   );
 
-  const total = fireMastery + foodQuality + vibe + crisisLeadership + ubuntu;
+  // ── TEMPTATION PENALTY ──
+  // Each selfish pick costs 5 Ubuntu points. A long streak adds bonus penalty.
+  const temptationPenalty = (state.selfishCount * 5) +
+    (state.maxSelfishStreak >= 3 ? 15 : 0);
+  ubuntu = clampMeter(ubuntu - temptationPenalty);
+
+  const total = Math.min(500, fireMastery + foodQuality + vibe + crisisLeadership + ubuntu);
 
   return { fireMastery, foodQuality, vibe, crisisLeadership, ubuntu, total };
 }
@@ -1078,12 +1261,22 @@ function renderJudgement(scores) {
     { name: '🤝 Ubuntu', score: scores.ubuntu }
   ];
 
+  // Show temptation warning if player was selfish
+  const temptationNote = state.selfishCount > 0
+    ? `<div class="temptation-note" role="status">
+        😈 Temptations taken: ${state.selfishCount}${state.maxSelfishStreak >= 3 ? ' (streak penalty!)' : ''}
+        <br><small>Each selfish choice cost you 5 Ubuntu points</small>
+       </div>`
+    : `<div class="temptation-note positive" role="status">
+        😇 You resisted all temptations! Ubuntu preserved.
+       </div>`;
+
   els.judgementGrid.innerHTML = categories.map(cat => `
     <div class="judgement-card">
       <span class="category-name">${cat.name}</span>
       <span class="category-score">${cat.score} / 100</span>
     </div>
-  `).join('');
+  `).join('') + temptationNote;
 
   els.judgementTotal.textContent = `${scores.total} / 500`;
 }
@@ -1133,41 +1326,50 @@ els.btnRestart.addEventListener('click', () => {
 //   devLose()  — immediately trigger a loss (fire hits 0)
 //   devJudge() — jump to judgement with custom meter values
 //
-// These are DISABLED during normal gameplay — they only work when
-// called explicitly from the console. They do not appear in the UI.
-// In production, these could be removed or guarded behind a flag.
+// AVAILABILITY:
+// Only enabled when running on localhost/127.0.0.1 OR when the URL
+// contains ?dev=true. On the published GitHub Pages site, these
+// functions will NOT exist on window — preventing players from
+// cheating or accessing internal state.
+(function registerDevHelpers() {
+  const host = window.location.hostname;
+  const params = new URLSearchParams(window.location.search);
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '';
+  const isDevFlag = params.get('dev') === 'true';
 
-window.devWin = function () {
-  // Simulate a win: set all meters high, skip to judgement
-  state.meters = { fire: 80, food: 70, vibe: 75, electricity: 65, neighbourPatience: 60 };
-  state.totalLeadership = 8;
-  state.totalUbuntu = 6;
-  state.decisionsCount = 5;
-  goToJudgement(true);
-  console.log('🏆 DEV: Triggered win scenario');
-};
+  if (!isLocal && !isDevFlag) return; // ← skip registration on production
 
-window.devLose = function () {
-  // Simulate a loss: fire meter at 0
-  state.meters = { fire: 0, food: 40, vibe: 30, electricity: 50, neighbourPatience: 20 };
-  state.totalLeadership = -2;
-  state.totalUbuntu = 1;
-  state.decisionsCount = 4;
-  goToJudgement(false, 'fire');
-  console.log('💀 DEV: Triggered loss scenario (fire died)');
-};
+  window.devWin = function () {
+    state.meters = { fire: 80, food: 70, vibe: 75, electricity: 65, neighbourPatience: 60 };
+    state.totalLeadership = 8;
+    state.totalUbuntu = 6;
+    state.decisionsCount = 5;
+    goToJudgement(true);
+    console.log('🏆 DEV: Triggered win scenario');
+  };
 
-window.devJudge = function (customMeters) {
-  // Jump to judgement with optional custom meter values
-  if (customMeters) {
-    Object.assign(state.meters, customMeters);
-  }
-  state.totalLeadership = state.totalLeadership || 3;
-  state.totalUbuntu = state.totalUbuntu || 4;
-  state.decisionsCount = state.decisionsCount || 5;
-  goToJudgement(true);
-  console.log('📋 DEV: Jumped to judgement screen');
-};
+  window.devLose = function () {
+    state.meters = { fire: 0, food: 40, vibe: 30, electricity: 50, neighbourPatience: 20 };
+    state.totalLeadership = -2;
+    state.totalUbuntu = 1;
+    state.decisionsCount = 4;
+    goToJudgement(false, 'fire');
+    console.log('💀 DEV: Triggered loss scenario (fire died)');
+  };
+
+  window.devJudge = function (customMeters) {
+    if (customMeters) {
+      Object.assign(state.meters, customMeters);
+    }
+    state.totalLeadership = state.totalLeadership || 3;
+    state.totalUbuntu = state.totalUbuntu || 4;
+    state.decisionsCount = state.decisionsCount || 5;
+    goToJudgement(true);
+    console.log('📋 DEV: Jumped to judgement screen');
+  };
+
+  console.log('🔧 DEV: Test helpers enabled (devWin, devLose, devJudge)');
+})();
 
 // ─── INITIALISE ──────────────────────────────────────────────
 function init() {
