@@ -379,6 +379,35 @@ body {
   outline: none;
 }
 
+/* --- Action Result Feedback --- */
+.result-card {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.result-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  line-height: 1.5;
+  animation: resultPop 0.3s ease-out;
+}
+
+@keyframes resultPop {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* --- Disabled Action Buttons (double-click prevention) --- */
+.btn-action.disabled,
+.btn-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: transparent;
+  background: var(--color-surface-light);
+}
+
 /* ======================== END SCREEN ======================== */
 
 .end-title {

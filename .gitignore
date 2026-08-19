@@ -1,0 +1,17 @@
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# IDE configuration
+.vscode/
+.idea/
+.kiro/
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Environment secrets
+.env
+.env.*
