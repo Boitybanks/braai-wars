@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Braai Wars</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ======================== START SCREEN ======================== -->
+  <section id="screen-start" class="screen active">
+    <div class="container">
+      <!-- Decorative emoji flames frame the title -->
+      <div class="title-flames" aria-hidden="true">🔥🔥🔥</div>
+      <h1 class="game-title">Braai Wars</h1>
+      <p class="subtitle">A Chaotic South African Backyard Showdown</p>
+
+      <div class="instructions-box">
+        <h2>How to Play</h2>
+        <ul>
+          <li>🥩 You're the <strong>braai master</strong> — keep the party alive!</li>
+          <li>⚡ Manage 5 meters: Fire, Food, Vibe, Electricity &amp; Neighbour Patience</li>
+          <li>🃏 Crisis cards pop up — pick the best action before time runs out</li>
+          <li>⏱️ Survive <strong>60 seconds</strong> without any meter hitting zero</li>
+          <li>🏆 Higher meters at the end = higher score!</li>
+        </ul>
+      </div>
+
+      <button id="btn-start" class="btn btn-primary">Start the Braai 🔥</button>
+
+      <p class="best-score-display" id="start-best-score"></p>
+    </div>
+  </section>
+
+  <!-- ======================== CHARACTER SELECT ======================== -->
+  <section id="screen-character" class="screen">
+    <div class="container">
+      <h2>Choose Your Braai Master</h2>
+      <div class="character-grid" id="character-grid">
+        <!-- Characters injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PLAYING SCREEN ======================== -->
+  <section id="screen-playing" class="screen">
+    <div class="container">
+      <!-- Top bar: timer + score -->
+      <div class="top-bar">
+        <div class="timer" id="timer">⏱️ 60s</div>
+        <div class="current-character" id="current-character"></div>
+      </div>
+
+      <!-- Meters display -->
+      <div class="meters" id="meters">
+        <!-- Meter bars injected by JS -->
+      </div>
+
+      <!-- Crisis card area -->
+      <div class="card-area" id="card-area">
+        <!-- Card content injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== END SCREEN ======================== -->
+  <section id="screen-end" class="screen">
+    <div class="container">
+      <h1 class="end-title" id="end-title"></h1>
+      <p class="end-subtitle" id="end-subtitle"></p>
+      <div class="end-scores">
+        <p>Your Score: <strong id="end-score">0</strong> / 500</p>
+        <p>Best Score: <strong id="end-best-score">0</strong></p>
+      </div>
+      <button id="btn-restart" class="btn btn-primary">Braai Again 🔁</button>
+    </div>
+  </section>
+
+  <script src="game.js"></script>
+</body>
+</html>
